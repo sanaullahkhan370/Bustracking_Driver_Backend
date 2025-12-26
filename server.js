@@ -1,22 +1,24 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import dotenv from "dotenv";
+
+// ======================
+// Load .env file
+// ======================
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 // ======================
 // MongoDB Connection
 // ======================
 mongoose
-  .connect(
-    "mongodb+srv://khansanaullah370:sana195@cluster0.ye79ran.mongodb.net/school-bus-tracking"
-  )
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.log("❌ MongoDB Error:", err));
-
 
 // ======================
 // User Schema
@@ -34,7 +36,6 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model("users", userSchema);
-
 
 // ======================
 // LOGIN Route
@@ -62,10 +63,9 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
-// =================================================
+// ======================
 // LOCATION UPDATE (Mobile App)
-// =================================================
+// ======================
 app.post("/api/location/update", async (req, res) => {
   try {
     const { busId, latitude, longitude } = req.body;
@@ -94,15 +94,14 @@ app.post("/api/location/update", async (req, res) => {
   }
 });
 
-
-// =================================================
-// GF-07 GPS Tracker Route (GET)
-// =================================================
+// ======================
+// GF-07 GPS Tracker Route
+// ======================
 app.get("/api/gps", async (req, res) => {
   try {
     const { busId, lat, lng } = req.query;
 
-    console.log("📡 GF-07:", busId, lat, lng);
+    console.log("📡 GPS:", busId, lat, lng);
 
     if (!busId || !lat || !lng) {
       return res.status(400).send("Invalid GPS Data");
@@ -125,14 +124,12 @@ app.get("/api/gps", async (req, res) => {
   }
 });
 
-
 // ======================
 // Root Test Route
 // ======================
 app.get("/", (req, res) => {
   res.send("🚍 Bus Tracking Server Running");
 });
-
 
 // ======================
 // Start Server
